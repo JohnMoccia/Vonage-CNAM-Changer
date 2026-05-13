@@ -280,7 +280,7 @@
                     cnam: callerName
                 });
 
-                const response = await fetch('https://rest.nexmo.com/number/update', {
+                const response = await fetch('https://vonage-cnam-proxy.johnm-af2.workers.dev', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: params.toString()
