@@ -286,12 +286,19 @@
                     body: params.toString()
                 });
 
-                const data = await response.json();
+                const raw = await response.text();
+                const rawBox = `<pre style="margin-top:10px;font-size:11px;background:#f4f4f4;padding:8px;border-radius:4px;overflow:auto;">${raw}</pre>`;
 
-                // Show raw response always so user can see what came back
-                const rawBox = `<pre style="margin-top:10px;font-size:11px;background:#f4f4f4;padding:8px;border-radius:4px;overflow:auto;">${JSON.stringify(data, null, 2)}</pre>`;
+                // Vonage returns either plain "error code: 200" or JSON
+                let isSuccess = false;
+                try {
+                    const data = JSON.parse(raw);
+                    isSuccess = data['error-code'] === '200' || data['error-code-label'] === 'success';
+                } catch(e) {
+                    isSuccess = raw.includes('error code: 200') || raw.includes('success');
+                }
 
-                if (data['error-code'] === '200' || data['error-code-label'] === 'success') {
+                if (isSuccess) {
                     resultDiv.className = 'result success';
                     resultDiv.innerHTML = `
                         <strong>✅ Success!</strong>
@@ -303,7 +310,7 @@
                     resultDiv.className = 'result error';
                     resultDiv.innerHTML = `
                         <strong>❌ Error</strong>
-                        ${data['error-code-label'] || data.detail || data.title || 'Unknown error'}
+                        ${raw}
                         ${rawBox}
                     `;
                 }
